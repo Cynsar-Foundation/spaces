@@ -7,6 +7,12 @@ const Wrapper = styled.header`
   max-width: var(--globalContainer);
 `;
 
+const LogoStyle = styled.div`
+  font-size: var(--baseXL);
+  color: var(--primaryColor);
+  line-height: var(--bodyLineHeight);
+`;
+
 const Container = styled.div`
   width: 100%;
   padding: var(--globalPaddingLr) 0;
@@ -63,4 +69,4 @@ const VerticalDivider = styled.span`
   }
 `;
 
-export { Wrapper, Container, Nav, NavList, Right, VerticalDivider };
+export { Wrapper, Container, Nav, NavList, Right, VerticalDivider, LogoStyle };

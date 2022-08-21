@@ -15,6 +15,7 @@ import {
   NavList,
   Right,
   VerticalDivider,
+  LogoStyle,
 } from './styles';
 
 // Main component
@@ -136,7 +137,7 @@ export const Header = () => {
           recordId={homepageRecordId}
           key={homepageRecordId}
         >
-          <Logo />
+          <LogoStyle><Logo/></LogoStyle>
         </Navigator>
         <Nav>
           <NavList>
