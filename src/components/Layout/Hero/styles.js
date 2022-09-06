@@ -8,6 +8,21 @@ const Wrapper = styled.section`
   row-gap: var(--gapXL);
   max-width: var(--globalContainer);
   align-items: center;
+  background: rgb(147,54,154);
+  background: linear-gradient(90deg, rgba(147,54,154,0.8869922969187675) 0%, rgba(230,102,64,0.9009978991596639) 35%, rgba(0,212,255,1) 100%); 
+  animation: gradient 15s ease infinite;
+  background-size: 400% 400%;
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
 
   ${({ isFullViewport }) =>
     isFullViewport &&

@@ -50,12 +50,12 @@ export const GlobalStyle = createGlobalStyle`
     }
 
     .lightTheme {
-        --primaryColor: #FF623F;
+        --primaryColor: #000000;
         --headingsColor: #4D4D4D;
-        --baseTextColor:#6E7581;
+        --baseTextColor:#444444;
         --dividerColor: #E2E2E2;
-        --markBackgroundColor: #FDFFB4;
-        --markTextColor: #4D4D4D;
+        --markBackgroundColor: #783f04;
+        --markTextColor: #000000;
         --inlineCodeTextColor: #4D4D4D;
         --inlineCodeBackgroundColor: #DBEFFF;
         --backgroundColor: #FFFFFF;
