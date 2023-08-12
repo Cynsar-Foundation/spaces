@@ -121,6 +121,20 @@ const GridTextBox = styled.section`
   align-content: baseline;
 `;
 
+const NoImage = styled.section`
+.no-image::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #3498db, #8e44ad);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1; /* Place it behind the content */
+}
+`;
+
 export {
   Section,
   SectionGridTwoCols,
@@ -129,4 +143,5 @@ export {
   SectionFlexTwoColsReverse,
   ColumnFlex,
   GridTextBox,
+  NoImage
 };

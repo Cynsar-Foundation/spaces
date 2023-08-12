@@ -58,6 +58,14 @@ const Right = styled.div`
   }
 `;
 
+const GradientText = styled.span`
+    background: linear-gradient(45deg, #3498db, #8e44ad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline; /* Ensures the background only takes up the space of the text */
+`;
+
+
 const VerticalDivider = styled.span`
   height: 100%;
   width: var(--borderSmall);
@@ -69,4 +77,22 @@ const VerticalDivider = styled.span`
   }
 `;
 
-export { Wrapper, Container, Nav, NavList, Right, VerticalDivider, LogoStyle };
+const DonateWrapper = styled.div`
+    background-color: #99ff66;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    display: inline-block;
+
+    &:hover {
+        background-color: #99ff66;
+    }
+
+    a {
+        color: inherit; // to ensure the link inside inherits the color
+        text-decoration: none;
+    }
+`;
+
+export { Wrapper, Container, Nav, NavList, Right, VerticalDivider, LogoStyle, GradientText, DonateWrapper };

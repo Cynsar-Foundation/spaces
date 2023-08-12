@@ -12,11 +12,14 @@ import {
   SectionFlexTwoColsReverse,
   ColumnFlex,
   GridTextBox,
+  NoImage,
 } from '../components/Layout/sharedStyles/sectionStyles';
 import {
   HeadingMedium,
   HeadingSmallWithTip,
 } from '../components/Layout/sharedStyles/headingStyles';
+
+const DEFAULT_IMAGE = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAoHBwgHBg8SChEQEAgVDg0NDRQOFRISFg0YFxMZGBYTFhUaHysjJh0oHRUWJDUlKC0vMjIyGSI4PTcwPCsxMi8BCgsLDg0OHBANHC8cFhwvLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vL//AABEIABkAFQMBIgACEQEDEQH/xAAYAAACAwAAAAAAAAAAAAAAAAAABQIDBP/EAB0QAAICAgMBAAAAAAAAAAAAAAACAQQDMhESIQX/xAAXAQEBAQEAAAAAAAAAAAAAAAADAgQA/8QAGhEAAwADAQAAAAAAAAAAAAAAAAECAxESE//aAAwDAQACEQMRAD8AS4U5KLi+GyrEcEbqL0BrI9miMK5EvUCbT6BXowHhQ5rzEQVX8qqhKvqY/paCVC2dF1yZlZGgCjFqBXCBds//2Q==";
 
 const OtherPagesTemplate = ({
   data: {
@@ -40,6 +43,7 @@ const OtherPagesTemplate = ({
             heroTitle,
             heroSubtitle,
             image,
+            wloudinary,
             title,
             text,
             firstFeatureTitle,
@@ -62,8 +66,13 @@ const OtherPagesTemplate = ({
             case 'DatoCmsSectionImageLeft':
               return (
                 <SectionFlexTwoCols>
-                  <ColumnFlex hasImg>
-                    <img src={image.url} alt={image.alt} />
+                  <ColumnFlex hasImg className={!image && !wloudinary ? NoImage : ''}>
+                    {wloudinary  ? (
+                       <img src={JSON.parse(wloudinary).secure_url} alt={wloudinary.alt || "Cloudinary Image"} 
+                       style={{ width: '150px'}}
+                       /> 
+                    ) : image ? ( <img src={(image && image.url) ? image.url : DEFAULT_IMAGE} alt={(image && image.alt) ? image.alt : "Default Image Description"} />
+                          ): null }
                   </ColumnFlex>
                   <ColumnFlex>
                     <GridTextBox as="div">
@@ -109,7 +118,12 @@ const OtherPagesTemplate = ({
                     </GridTextBox>
                   </ColumnFlex>
                   <ColumnFlex hasImg>
-                    <img src={image.url} alt={image.alt} />
+                  {wloudinary  ? (
+                       <img src={JSON.parse(wloudinary).secure_url} alt={wloudinary.alt || "Cloudinary Image"} 
+                       style={{ width: '150px'}}
+                       /> 
+                    ) : image ? ( <img src={(image && image.url) ? image.url : DEFAULT_IMAGE} alt={(image && image.alt) ? image.alt : "Default Image Description"} />
+                          ): null }
                   </ColumnFlex>
                 </SectionFlexTwoColsReverse>
               );
@@ -172,6 +186,7 @@ export const query = graphql`
             __typename
             id: originalId
             title
+            wloudinary
             image {
               url
               gatsbyImageData

@@ -16,6 +16,8 @@ import {
   Right,
   VerticalDivider,
   LogoStyle,
+  DonateButton,
+  DonateWrapper,
 } from './styles';
 
 // Main component
@@ -153,13 +155,24 @@ export const Header = () => {
               ) : (
                 !isCategoryDropdown && (
                   <li key={id}>
-                    <Navigator
-                      recordId={link?.id}
-                      activeClassName="activeClassLink"
-                    >
-                      {name}
-                    </Navigator>
-                  </li>
+                    {name === "Donate us" ? (
+                        <DonateWrapper>
+                            <Navigator
+                                recordId={link?.id}
+                                activeClassName="activeClassLink"
+                            >
+                                {name}
+                            </Navigator>
+                        </DonateWrapper>
+                    ) : (
+                        <Navigator
+                            recordId={link?.id}
+                            activeClassName="activeClassLink"
+                        >
+                            {name}
+                        </Navigator>
+                    )}
+                </li>
                 )
               )
             )}

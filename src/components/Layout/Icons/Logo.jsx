@@ -1,3 +1,6 @@
+import { GradientText } from "../Header/Full/styles"
+
 export const Logo = () => (
-  'Cynsar Foundation'
+  <GradientText>Cynsar Foundation</GradientText>
 );
+
