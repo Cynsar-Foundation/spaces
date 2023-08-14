@@ -17,7 +17,7 @@ import {
   SectionGridTwoCols,
 } from '../components/Layout/sharedStyles/sectionStyles';
 
-const placeHolderImage = "https://res.cloudinary.com/theupscale/image/upload/v1692019886/1_bj7yqq.jpg"
+const placeHolderImage = "https://res.cloudinary.com/theupscale/image/upload/v1692019886/1_bj7yqq.jpg";
 
 const defaultGatsbyImageData = {
   layout: "constrained",  // or any other default value for layout
@@ -35,6 +35,28 @@ const defaultGatsbyImageData = {
       sources: [],
       fallback: {
           src: placeHolderImage,
+          srcSet: "",
+          sizes: ""
+      }
+  }
+};
+
+const defaultGatsbyImageMobile = {
+  layout: "constrained",  // or any other default value for layout
+  width: 100,  // default width
+  height: 100,  // default height
+  images: {
+      sources: [],
+      fallback: {
+          src: "https://res.cloudinary.com/theupscale/image/upload/v1692019886/1_bj7yqq.jpg",
+          srcSet: "",
+          sizes: ""
+      }
+  },
+  placeholder: {
+      sources: [],
+      fallback: {
+          src: "https://res.cloudinary.com/theupscale/image/upload/v1692019886/1_bj7yqq.jpg",
           srcSet: "",
           sizes: ""
       }
@@ -157,8 +179,8 @@ const ArticleTemplate = ({
                   recordId={relatedId}
                   date={relatedUpdatedAt}
                   category={relatedCategoryLink}
-                  cardImg={coverImage.gatsbyImageData}
-                  cardImgMobile={coverImage.squaredImage}
+                  cardImg={coverImage?.gatsbyImageData || defaultGatsbyImageData}
+                  cardImgMobile={coverImage?.squaredImage || defaultGatsbyImageMobile }
                   altImg={relatedTitle}
                   title={relatedTitle}
                   excerpt={relatedSubtitle}
