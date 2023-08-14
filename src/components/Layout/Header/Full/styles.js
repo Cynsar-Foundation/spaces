@@ -86,7 +86,7 @@ const DonateWrapper = styled.div`
     display: inline-block;
 
     &:hover {
-        background-color: #99ff66;
+        background-color: #2c80b9;
     }
 
     a {

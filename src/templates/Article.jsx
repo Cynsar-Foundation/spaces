@@ -17,6 +17,32 @@ import {
   SectionGridTwoCols,
 } from '../components/Layout/sharedStyles/sectionStyles';
 
+const placeHolderImage = "https://res.cloudinary.com/theupscale/image/upload/v1692019886/1_bj7yqq.jpg"
+
+const defaultGatsbyImageData = {
+  layout: "constrained",  // or any other default value for layout
+  width: 2360,  // default width
+  height: 1640,  // default height
+  images: {
+      sources: [],
+      fallback: {
+          src: placeHolderImage,
+          srcSet: "",
+          sizes: ""
+      }
+  },
+  placeholder: {
+      sources: [],
+      fallback: {
+          src: placeHolderImage,
+          srcSet: "",
+          sizes: ""
+      }
+  }
+};
+
+
+
 const ArticleTemplate = ({
   data: {
     datoCmsBlogPost: {
@@ -26,7 +52,7 @@ const ArticleTemplate = ({
       subtitle,
       author,
       seo,
-      coverImage: { coverImageData },
+      coverImage,
       meta: { updatedAt, firstPublishedAt },
       categoryLink,
       relatedPosts,
@@ -46,7 +72,7 @@ const ArticleTemplate = ({
         title={title}
         subtitle={subtitle}
         authorName={author?.authorName}
-        coverImg={coverImageData}
+        coverImg={coverImage?.coverImageData || defaultGatsbyImageData}
         coverImgAlt={title}
         authorImg={author?.picture?.authorPictureData}
         authorImgAlt={author?.authorName}
