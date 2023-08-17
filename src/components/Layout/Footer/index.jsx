@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
 
-import { graphql, useStaticQuery } from 'gatsby';
+import { graphql, useStaticQuery, } from 'gatsby';
+
+import { renderNodeRule } from 'react-datocms';
 
 import { StructuredText } from 'react-datocms';
 
@@ -20,6 +22,12 @@ export const Footer = () => {
           textRight {
             value
           }
+          aboutSection{
+            value
+          }
+          termsContent{
+            value
+          }
           locale
         }
       }
@@ -28,10 +36,10 @@ export const Footer = () => {
 
   const { pageLocale } = usePageLocale();
 
+
   const {
     allDatoCmsFooter: { nodes },
   } = data;
-
   return (
     <Wrapper>
       <Container>
@@ -42,13 +50,19 @@ export const Footer = () => {
               id,
               textLeft: { value: textLeftValue },
               textRight: { value: textRightValue },
+              aboutSection: {value: aboutSectionValue},
+              termsContent: {value: termsContentValue}
             }) => (
               <Fragment key={id}>
                 <Column>
+                  <StructuredText data={aboutSectionValue} />
                   <StructuredText data={textLeftValue} />
+                  
                 </Column>
                 <Column>
                   <StructuredText data={textRightValue} />
+                  <StructuredText data={termsContentValue} />
+                  
                 </Column>
               </Fragment>
             )
@@ -57,3 +71,6 @@ export const Footer = () => {
     </Wrapper>
   );
 };
+
+
+

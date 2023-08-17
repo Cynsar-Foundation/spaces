@@ -6,6 +6,53 @@ import { CategoriesMenu } from '../components/Layout/Blog/CategoriesMenu';
 import { ArticleCard } from '../components/Layout/Blog/Cards/ArticleCard';
 import { SectionGridThreeCols } from '../components/Layout/sharedStyles/sectionStyles';
 
+const placeHolderImage = "https://res.cloudinary.com/theupscale/image/upload/v1692019886/1_bj7yqq.jpg";
+
+const defaultGatsbyImageData = {
+  layout: "constrained",  // or any other default value for layout
+  width: 2360,  // default width
+  height: 1640,  // default height
+  images: {
+      sources: [],
+      fallback: {
+          src: placeHolderImage,
+          srcSet: "",
+          sizes: ""
+      }
+  },
+  placeholder: {
+      sources: [],
+      fallback: {
+          src: placeHolderImage,
+          srcSet: "",
+          sizes: ""
+      }
+  }
+};
+
+const defaultGatsbyImageMobile = {
+  layout: "constrained",  // or any other default value for layout
+  width: 100,  // default width
+  height: 100,  // default height
+  images: {
+      sources: [],
+      fallback: {
+          src: "https://res.cloudinary.com/theupscale/image/upload/v1692019886/1_bj7yqq.jpg",
+          srcSet: "",
+          sizes: ""
+      }
+  },
+  placeholder: {
+      sources: [],
+      fallback: {
+          src: "https://res.cloudinary.com/theupscale/image/upload/v1692019886/1_bj7yqq.jpg",
+          srcSet: "",
+          sizes: ""
+      }
+  }
+};
+
+
 const CategoryTemplate = ({
   data: {
     datoCmsCategory: {
@@ -44,8 +91,8 @@ const CategoryTemplate = ({
               recordId={id}
               date={updatedAt}
               category={categoryLink}
-              cardImg={coverImage.gatsbyImageData}
-              cardImgMobile={coverImage.squaredImage}
+              cardImg={coverImage?.gatsbyImageData || defaultGatsbyImageData}
+              cardImgMobile={coverImage?.squaredImage || defaultGatsbyImageMobile }
               altImg={title}
               title={title}
               excerpt={subtitle}
