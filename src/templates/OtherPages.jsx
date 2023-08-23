@@ -208,6 +208,7 @@ export const query = graphql`
             __typename
             id: originalId
             title
+            wloudinary
             image {
               url
               gatsbyImageData
