@@ -78,6 +78,8 @@ export const PageHead = ({ seoTitle, seoDescription, seoImage }) => {
 
       <html lang={pageLocale} dir={isRtl ? 'rtl' : 'ltr'} />
 
+      <script defer data-domain="cynsar.foundation" src="https://analytics.cynsar.capital/js/script.js" />
+
       {/* PWA */}
 
       <meta name="theme-color" content={themeHexColor} />
