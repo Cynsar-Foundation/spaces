@@ -1,3 +1,56 @@
+---
+
+# Cynsar Foundation Codebase
+
+Welcome to the official code repository for the `cynsar.foundation` website. This platform was meticulously developed using DatoCMS.
+
+## Special Acknowledgment
+
+We're grateful to Cynsar Capital for their generous donation of a privacy-preserving page tracking code, ensuring our visitors' data is protected and anonymous.
+
+## Features
+
+- **DatoCMS Integration**: Efficient content management that ensures the website's content is up-to-date and seamlessly displayed.
+- **Privacy-Preserving Page Tracking**: Courtesy of Cynsar Capital, this tracking code guarantees our visitors’ privacy is always a top priority.
+- **Headless Gatsby Starter Template**: Headless Multilanguage Starter for Gatsby all thanks and all the code is borrowed from this [Live Demo](https://headlessmultilingual.gatsbyjs.io)
+
+## Installation and Usage
+
+```bash
+# Clone the repository
+git clone https://github.com/Cynsar-Foundation/spaces.git
+
+# Navigate to the project directory
+cd cynsar.foundation
+
+# Install dependencies
+npm install
+
+# Start the local development server
+npm start
+```
+
+## Contributions
+
+We welcome any contributions to improve the `cynsar.foundation` platform. Please read the CONTRIBUTING.md before pushing any changes.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+---
+
+Thank you for taking an interest in the Cynsar Foundation. Your support and contributions further our mission.
+
+
+---
+
+Further Readme 
+
+
+
+
+
 ![](https://i.ibb.co/WBtk7DB/readme.png)
 
 <br />
@@ -1217,4 +1270,4 @@ What happened here is that you removed a field or content model on DatoCMS and f
 
 # Issues
 
-If you encounter any different issue or you have any kind of request, please open an issue or contact me via [email](smastrom@protonmail.com). I will be happy to help you as soon as I can.
+If you encounter any different issue or you have any kind of request, please open an issue.
