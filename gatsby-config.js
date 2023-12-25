@@ -22,7 +22,7 @@ module.exports = {
       __key: 'pages',
     },
     'gatsby-plugin-gatsby-cloud',
-    'gatsby-plugin-sitemap',
+    // 'gatsby-plugin-sitemap',
     'gatsby-plugin-image',
     'gatsby-plugin-react-helmet',
     {
