@@ -19,476 +19,465 @@ exports.createPages = async ({
    * As soon as you add, remove and edit the order languages on Dato, page
    * paths defined below will be re-generated accordingly.
    */
-  const DownPageTemplate = resolve('src/pages/down.jsx');
-  createRedirect({
-    fromPath: '/*', // This wildcard matches all paths
-    toPath: DownPageTemplate,
-    isPermanent: true, // Typically false for temporary redirects, f this is a permanent change
-    force: true, // Force the redirect (ignore if the path is already defined)
-    statusCode: 302,
-    redirectInBrowser: true // Temporary redirect, use 301 for permanent
+
+  const {
+    data: {
+      datoCmsSite: { locales },
+    },
+  } = await graphql(`
+    query {
+      datoCmsSite {
+        locales
+      }
+    }
+  `);
+
+  console.log(
+    '\x1b[35m',
+    'multilang',
+    '\x1b[0m',
+    `Found ${locales.length} languages: ${locales.join(', ')}`
+  );
+
+  const [defaultLocale] = locales;
+
+  // Handle homepage server-side redirects - Start
+
+  const secondaryLanguages = [...locales];
+  secondaryLanguages.shift();
+
+  secondaryLanguages.forEach((language) => {
+    const langCode = language.split('-')[0];
+
+    createRedirect({
+      fromPath: '/',
+      toPath: `/${language}/`,
+      isPermanent: false,
+      conditions: {
+        language: [langCode],
+      },
+    });
   });
 
-  // const {
-  //   data: {
-  //     datoCmsSite: { locales },
-  //   },
-  // } = await graphql(`
-  //   query {
-  //     datoCmsSite {
-  //       locales
-  //     }
-  //   }
-  // `);
+  // Handle homepage server-side redirects - End
 
-  // console.log(
-  //   '\x1b[35m',
-  //   'multilang',
-  //   '\x1b[0m',
-  //   `Found ${locales.length} languages: ${locales.join(', ')}`
-  // );
+  /**
+   * From now on we query and export to the pageContext object the "originalId" and the "locale"
+   * field for any page we generate.
+   *
+   * Since any record has the same originalId for each localized node, we will use it to
+   * find the correspondent paths in the LanguageSwitcher and Navigator components once pages
+   * are generated.
+   *
+   * Once page is generated, components are aware of the pageLangauge (locale) and the originalId
+   * corresponding to that page, so it will be easier retrieving the correspondent path for each
+   * locale for that recordId.
+   *
+   * By querying a "single istance" content model using the GraphQL field "allDato.."
+   * we retrieve an array of n nodes. One node for each locale. We generate one page for each node.
+   *
+   * If a field is set as "localizable" and localized on Dato, the field value will change
+   * for each node.
+   *
+   * If not it will display the same value for each node.
+   */
 
-  // const [defaultLocale] = locales;
+  // Homepage generation with a specific template
 
-  // // Handle homepage server-side redirects - Start
+  const {
+    data: {
+      allDatoCmsHomepage: { homepageNodes },
+    },
+  } = await graphql(`
+    query {
+      allDatoCmsHomepage {
+        homepageNodes: nodes {
+          id: originalId
+          locale
+        }
+      }
+    }
+  `);
 
-  // const secondaryLanguages = [...locales];
-  // secondaryLanguages.shift();
+  const HomePageTemplate = resolve('src/templates/Home.jsx');
 
-  // secondaryLanguages.forEach((language) => {
-  //   const langCode = language.split('-')[0];
+  homepageNodes.forEach(({ id, locale }) => {
+    createPage({
+      path: locale === defaultLocale ? '/' : locale,
+      component: HomePageTemplate,
+      context: {
+        id,
+        locale,
+      },
+    });
+  });
 
-  //   createRedirect({
-  //     fromPath: '/',
-  //     toPath: `/${language}/`,
-  //     isPermanent: false,
-  //     conditions: {
-  //       language: [langCode],
-  //     },
-  //   });
-  // });
+  // Categories archive generation with a specific template
 
-  // // Handle homepage server-side redirects - End
+  const {
+    data: {
+      allDatoCmsCategoriesArchive: { categoriesArchiveNodes },
+    },
+  } = await graphql(`
+    query {
+      allDatoCmsCategoriesArchive {
+        categoriesArchiveNodes: nodes {
+          id: originalId
+          locale
+          slug
+        }
+      }
+    }
+  `);
 
-  // /**
-  //  * From now on we query and export to the pageContext object the "originalId" and the "locale"
-  //  * field for any page we generate.
-  //  *
-  //  * Since any record has the same originalId for each localized node, we will use it to
-  //  * find the correspondent paths in the LanguageSwitcher and Navigator components once pages
-  //  * are generated.
-  //  *
-  //  * Once page is generated, components are aware of the pageLangauge (locale) and the originalId
-  //  * corresponding to that page, so it will be easier retrieving the correspondent path for each
-  //  * locale for that recordId.
-  //  *
-  //  * By querying a "single istance" content model using the GraphQL field "allDato.."
-  //  * we retrieve an array of n nodes. One node for each locale. We generate one page for each node.
-  //  *
-  //  * If a field is set as "localizable" and localized on Dato, the field value will change
-  //  * for each node.
-  //  *
-  //  * If not it will display the same value for each node.
-  //  */
+  const CategoriesArchiveTemplate = resolve(
+    'src/templates/CategoriesArchive.jsx'
+  );
 
-  // // Homepage generation with a specific template
+  categoriesArchiveNodes.forEach(({ locale, slug, id }) => {
+    createPage({
+      path: (() => {
+        if (locale === defaultLocale) return `/${slug}`;
+        return `/${locale}/${slug}/`;
+      })(),
+      component: CategoriesArchiveTemplate,
+      context: {
+        id,
+        locale,
+      },
+    });
+  });
 
-  // const {
-  //   data: {
-  //     allDatoCmsHomepage: { homepageNodes },
-  //   },
-  // } = await graphql(`
-  //   query {
-  //     allDatoCmsHomepage {
-  //       homepageNodes: nodes {
-  //         id: originalId
-  //         locale
-  //       }
-  //     }
-  //   }
-  // `);
+  // Blog root page generation with a specific template
 
-  // const HomePageTemplate = resolve('src/templates/Home.jsx');
+  const {
+    data: {
+      allDatoCmsBlogRoot: { blogRootNodes },
+    },
+  } = await graphql(`
+    query {
+      allDatoCmsBlogRoot {
+        blogRootNodes: nodes {
+          id: originalId
+          locale
+          slug
+        }
+      }
+    }
+  `);
 
-  // homepageNodes.forEach(({ id, locale }) => {
-  //   createPage({
-  //     path: locale === defaultLocale ? '/' : locale,
-  //     component: HomePageTemplate,
-  //     context: {
-  //       id,
-  //       locale,
-  //     },
-  //   });
-  // });
+  const BlogRootTemplate = resolve('src/templates/BlogRoot.jsx');
 
-  // // Categories archive generation with a specific template
+  blogRootNodes.forEach(({ locale, slug, id }) => {
+    createPage({
+      path: (() => {
+        if (locale === defaultLocale) return `/${slug}`;
+        return `/${locale}/${slug}/`;
+      })(),
+      component: BlogRootTemplate,
+      context: {
+        id,
+        locale,
+      },
+    });
+  });
 
-  // const {
-  //   data: {
-  //     allDatoCmsCategoriesArchive: { categoriesArchiveNodes },
-  //   },
-  // } = await graphql(
-  //   `
-  //     query {
-  //       allDatoCmsCategoriesArchive {
-  //         categoriesArchiveNodes: nodes {
-  //           id: originalId
-  //           locale
-  //           slug
-  //         }
-  //       }
-  //     }
-  //   `
-  // );
+  /**
+   * Ohter pages generation (/guide, /features) - Sharing the same template
+   *
+   * This is the same approach that will be used to generate records
+   * of any content model of type "collection" (like blog posts).
+   */
 
-  // const CategoriesArchiveTemplate = resolve(
-  //   'src/templates/CategoriesArchive.jsx'
-  // );
+  const {
+    data: {
+      allDatoCmsOtherPage: { otherPagesNodes },
+    },
+  } = await graphql(`
+    query {
+      allDatoCmsOtherPage {
+        otherPagesNodes: nodes {
+          id: originalId
+          locale
+          slug
+        }
+      }
+    }
+  `);
 
-  // categoriesArchiveNodes.forEach(({ locale, slug, id }) => {
-  //   createPage({
-  //     path: (() => {
-  //       if (locale === defaultLocale) return `/${slug}`;
-  //       return `/${locale}/${slug}/`;
-  //     })(),
-  //     component: CategoriesArchiveTemplate,
-  //     context: {
-  //       id,
-  //       locale,
-  //     },
-  //   });
-  // });
+  const OtherPagesTemplate = resolve('src/templates/OtherPages.jsx');
 
-  // // Blog root page generation with a specific template
+  otherPagesNodes.forEach(({ locale, slug, id }) => {
+    createPage({
+      path: locale === defaultLocale ? `/${slug}` : `${locale}/${slug}`,
+      component: OtherPagesTemplate,
+      context: {
+        id,
+        locale,
+      },
+    });
+  });
 
-  // const {
-  //   data: {
-  //     allDatoCmsBlogRoot: { blogRootNodes },
-  //   },
-  // } = await graphql(`
-  //   query {
-  //     allDatoCmsBlogRoot {
-  //       blogRootNodes: nodes {
-  //         id: originalId
-  //         locale
-  //         slug
-  //       }
-  //     }
-  //   }
-  // `);
+  /**
+   * From now on, we will need the correct blog pathname slug in order
+   * to generate the paths for posts and categories.
+   *
+   * We use this helper function inside each loop. By passing the locale value
+   * of the node we are generating, it will return us the correspondent blog pathname slug.
+   */
 
-  // const BlogRootTemplate = resolve('src/templates/BlogRoot.jsx');
+  const getBlogPathname = (generatingLocale) => {
+    const { slug } = blogRootNodes.find(
+      ({ locale }) => locale === generatingLocale
+    );
+    return slug;
+  };
 
-  // blogRootNodes.forEach(({ locale, slug, id }) => {
-  //   createPage({
-  //     path: (() => {
-  //       if (locale === defaultLocale) return `/${slug}`;
-  //       return `/${locale}/${slug}/`;
-  //     })(),
-  //     component: BlogRootTemplate,
-  //     context: {
-  //       id,
-  //       locale,
-  //     },
-  //   });
-  // });
+  // Categories generation
 
-  // /**
-  //  * Ohter pages generation (/guide, /features) - Sharing the same template
-  //  *
-  //  * This is the same approach that will be used to generate records
-  //  * of any content model of type "collection" (like blog posts).
-  //  */
+  const {
+    data: {
+      allDatoCmsCategory: { categoryNodes },
+    },
+  } = await graphql(`
+    query {
+      allDatoCmsCategory(filter: { noTranslate: { ne: true } }) {
+        categoryNodes: nodes {
+          id: originalId
+          locale
+          slug
+        }
+      }
+    }
+  `);
 
-  // const {
-  //   data: {
-  //     allDatoCmsOtherPage: { otherPagesNodes },
-  //   },
-  // } = await graphql(`
-  //   query {
-  //     allDatoCmsOtherPage {
-  //       otherPagesNodes: nodes {
-  //         id: originalId
-  //         locale
-  //         slug
-  //       }
-  //     }
-  //   }
-  // `);
+  const CategoryTemplate = resolve('src/templates/Category.jsx');
 
-  // const OtherPagesTemplate = resolve('src/templates/OtherPages.jsx');
+  categoryNodes.forEach(({ id, locale, slug }) => {
+    const blogPathName = getBlogPathname(locale);
 
-  // otherPagesNodes.forEach(({ locale, slug, id }) => {
-  //   createPage({
-  //     path: locale === defaultLocale ? `/${slug}` : `${locale}/${slug}`,
-  //     component: OtherPagesTemplate,
-  //     context: {
-  //       id,
-  //       locale,
-  //     },
-  //   });
-  // });
+    createPage({
+      path: (() => {
+        if (locale === defaultLocale) return `${blogPathName}/${slug}`;
+        return `/${locale}/${blogPathName}/${slug}`;
+      })(),
+      component: CategoryTemplate,
+      context: {
+        id,
+        locale,
+      },
+    });
+  });
 
-  // /**
-  //  * From now on, we will need the correct blog pathname slug in order
-  //  * to generate the paths for posts and categories.
-  //  *
-  //  * We use this helper function inside each loop. By passing the locale value
-  //  * of the node we are generating, it will return us the correspondent blog pathname slug.
-  //  */
+  // Articles Generation
 
-  // const getBlogPathname = (generatingLocale) => {
-  //   const { slug } = blogRootNodes.find(
-  //     ({ locale }) => locale === generatingLocale
-  //   );
-  //   return slug;
-  // };
+  const {
+    data: {
+      allDatoCmsBlogPost: { blogPostNodes },
+    },
+  } = await graphql(`
+    query {
+      allDatoCmsBlogPost(
+        sort: { fields: [locale, meta___updatedAt] }
+        filter: {
+          noTranslate: { ne: true }
+          categoryLink: { noTranslate: { ne: true } }
+        }
+      ) {
+        blogPostNodes: nodes {
+          id: originalId
+          categoryLink {
+            categorySlug: slug
+          }
+          locale
+          slug
+        }
+      }
+    }
+  `);
 
-  // // Categories generation
+  const ArticleTemplate = resolve('src/templates/Article.jsx');
 
-  // const {
-  //   data: {
-  //     allDatoCmsCategory: { categoryNodes },
-  //   },
-  // } = await graphql(`
-  //   query {
-  //     allDatoCmsCategory(filter: { noTranslate: { ne: true } }) {
-  //       categoryNodes: nodes {
-  //         id: originalId
-  //         locale
-  //         slug
-  //       }
-  //     }
-  //   }
-  // `);
+  locales.forEach((siteLocale) => {
+    let pageCounter = 0;
 
-  // const CategoryTemplate = resolve('src/templates/Category.jsx');
+    const blogPostNodesPerLocale = blogPostNodes.filter(
+      ({ locale }) => locale === siteLocale
+    );
+    const blogPostsPerLocale = blogPostNodesPerLocale.length;
+    const blogPathName = getBlogPathname(siteLocale);
 
-  // categoryNodes.forEach(({ id, locale, slug }) => {
-  //   const blogPathName = getBlogPathname(locale);
+    blogPostNodesPerLocale.forEach(({ locale, slug, id, categoryLink }) => {
+      const categorySlug = categoryLink?.categorySlug;
+      const isUncategorized = categoryLink === null;
+      const isGeneratingDefaultLang = locale === defaultLocale;
 
-  //   createPage({
-  //     path: (() => {
-  //       if (locale === defaultLocale) return `${blogPathName}/${slug}`;
-  //       return `/${locale}/${blogPathName}/${slug}`;
-  //     })(),
-  //     component: CategoryTemplate,
-  //     context: {
-  //       id,
-  //       locale,
-  //     },
-  //   });
-  // });
+      pageCounter += 1;
 
-  // // Articles Generation
+      const isLastPost = pageCounter === blogPostsPerLocale;
 
-  // const {
-  //   data: {
-  //     allDatoCmsBlogPost: { blogPostNodes },
-  //   },
-  // } = await graphql(`
-  //   query {
-  //     allDatoCmsBlogPost(
-  //       sort: { fields: [locale, meta___updatedAt] }
-  //       filter: {
-  //         noTranslate: { ne: true }
-  //         categoryLink: { noTranslate: { ne: true } }
-  //       }
-  //     ) {
-  //       blogPostNodes: nodes {
-  //         id: originalId
-  //         categoryLink {
-  //           categorySlug: slug
-  //         }
-  //         locale
-  //         slug
-  //       }
-  //     }
-  //   }
-  // `);
+      createPage({
+        path: (() => {
+          if (isUncategorized) {
+            if (isGeneratingDefaultLang) return `${blogPathName}/${slug}`;
+            return `${locale}/${blogPathName}/${slug}`;
+          }
+          if (isGeneratingDefaultLang) {
+            return `${blogPathName}/${categorySlug}/${slug}`;
+          }
+          return `${locale}/${blogPathName}/${categorySlug}/${slug}`;
+        })(),
+        component: ArticleTemplate,
+        context: {
+          id,
+          locale,
+        },
+      });
 
-  // const ArticleTemplate = resolve('src/templates/Article.jsx');
+      if (isLastPost) {
+        console.log(
+          '\x1b[35m',
+          'node',
+          '\x1b[0m',
+          `Generated ${pageCounter} posts for "${locale}" locale.`
+        );
+      }
+    });
+  });
 
-  // locales.forEach((siteLocale) => {
-  //   let pageCounter = 0;
+  // Webmanifest generation
 
-  //   const blogPostNodesPerLocale = blogPostNodes.filter(
-  //     ({ locale }) => locale === siteLocale
-  //   );
-  //   const blogPostsPerLocale = blogPostNodesPerLocale.length;
-  //   const blogPathName = getBlogPathname(siteLocale);
+  const {
+    data: {
+      allDatoCmsSeoAndPwa: { seoAndPwaNodes },
+    },
+  } = await graphql(`
+    query {
+      allDatoCmsSeoAndPwa {
+        seoAndPwaNodes: nodes {
+          name
+          shortName
+          pwaLocale: locale
+          pwaIcon {
+            favSize: url(imgixParams: { w: "32", h: "32" })
+            normalSize: url(imgixParams: { w: "192", h: "192" })
+            bigSize: url(imgixParams: { w: "512", h: "512" })
+          }
+          pwaThemeColor {
+            pwaThemeColorHex: hex
+          }
+          pwaBackgroundColor {
+            pwaBackgroundColorHex: hex
+          }
+        }
+      }
+    }
+  `);
 
-  //   blogPostNodesPerLocale.forEach(({ locale, slug, id, categoryLink }) => {
-  //     const categorySlug = categoryLink?.categorySlug;
-  //     const isUncategorized = categoryLink === null;
-  //     const isGeneratingDefaultLang = locale === defaultLocale;
+  // Default lang manifest data
 
-  //     pageCounter += 1;
+  const [
+    {
+      pwaIcon: { favSize, normalSize, bigSize },
+      name,
+      shortName,
+      description,
+      pwaLocale,
+      pwaThemeColor: { pwaThemeColorHex },
+      pwaBackgroundColor: { pwaBackgroundColorHex },
+    },
+  ] = seoAndPwaNodes;
 
-  //     const isLastPost = pageCounter === blogPostsPerLocale;
+  const publicPath = 'public';
+  const imagesPath = 'public/images';
 
-  //     createPage({
-  //       path: (() => {
-  //         if (isUncategorized) {
-  //           if (isGeneratingDefaultLang) return `${blogPathName}/${slug}`;
-  //           return `${locale}/${blogPathName}/${slug}`;
-  //         }
-  //         if (isGeneratingDefaultLang) {
-  //           return `${blogPathName}/${categorySlug}/${slug}`;
-  //         }
-  //         return `${locale}/${blogPathName}/${categorySlug}/${slug}`;
-  //       })(),
-  //       component: ArticleTemplate,
-  //       context: {
-  //         id,
-  //         locale,
-  //       },
-  //     });
+  // Create full path
 
-  //     if (isLastPost) {
-  //       console.log(
-  //         '\x1b[35m',
-  //         'node',
-  //         '\x1b[0m',
-  //         `Generated ${pageCounter} posts for "${locale}" locale.`
-  //       );
-  //     }
-  //   });
-  // });
+  if (!fs.existsSync(imagesPath)) {
+    fs.mkdirSync(imagesPath);
+  }
 
-  // // Webmanifest generation
+  // Download resized icons
 
-  // const {
-  //   data: {
-  //     allDatoCmsSeoAndPwa: { seoAndPwaNodes },
-  //   },
-  // } = await graphql(`
-  //   query {
-  //     allDatoCmsSeoAndPwa {
-  //       seoAndPwaNodes: nodes {
-  //         name
-  //         shortName
-  //         pwaLocale: locale
-  //         pwaIcon {
-  //           favSize: url(imgixParams: { w: "32", h: "32" })
-  //           normalSize: url(imgixParams: { w: "192", h: "192" })
-  //           bigSize: url(imgixParams: { w: "512", h: "512" })
-  //         }
-  //         pwaThemeColor {
-  //           pwaThemeColorHex: hex
-  //         }
-  //         pwaBackgroundColor {
-  //           pwaBackgroundColorHex: hex
-  //         }
-  //       }
-  //     }
-  //   }
-  // `);
+  const iconNormal = fs.createWriteStream(`${imagesPath}/icon-192.png`);
+  const iconBig = fs.createWriteStream(`${imagesPath}/icon-512.png`);
+  const icon = fs.createWriteStream(`${publicPath}/favicon-32.png`);
 
-  // // Default lang manifest data
+  try {
+    get(`${normalSize}`, (response) => {
+      response.pipe(iconNormal);
+    });
+    get(`${bigSize}`, (response) => {
+      response.pipe(iconBig);
+    });
+    get(`${favSize}`, (response) => {
+      response.pipe(icon);
+    });
+  } catch (err) {
+    throw new Error(err.message);
+  }
 
-  // const [
-  //   {
-  //     pwaIcon: { favSize, normalSize, bigSize },
-  //     name,
-  //     shortName,
-  //     description,
-  //     pwaLocale,
-  //     pwaThemeColor: { pwaThemeColorHex },
-  //     pwaBackgroundColor: { pwaBackgroundColorHex },
-  //   },
-  // ] = seoAndPwaNodes;
+  const commonManifestData = {
+    theme_color: pwaThemeColorHex,
+    background_color: pwaBackgroundColorHex,
+    display: 'standalone',
+    icons: [
+      {
+        src: 'images/icon-192.png',
+        type: 'image/png',
+        sizes: '192x192',
+        purpose: 'any maskable',
+      },
+      {
+        src: 'images/icon-512.png',
+        type: 'image/png',
+        sizes: '512x512',
+        purpose: 'any maskable',
+      },
+    ],
+    cacheDigest: null,
+  };
 
-  // const publicPath = 'public';
-  // const imagesPath = 'public/images';
+  const manifest = {
+    name,
+    short_name: shortName,
+    description,
+    lang: pwaLocale,
+    start_url: '/',
+    ...commonManifestData,
+  };
 
-  // // Create full path
+  // Generate and save manifest to public folder
 
-  // if (!fs.existsSync(imagesPath)) {
-  //   fs.mkdirSync(imagesPath);
-  // }
+  fs.writeFileSync(
+    `${publicPath}/manifest.webmanifest`,
+    JSON.stringify(manifest, undefined, 2)
+  );
 
-  // // Download resized icons
+  // Additional locales webmanifest files generation
 
-  // const iconNormal = fs.createWriteStream(`${imagesPath}/icon-192.png`);
-  // const iconBig = fs.createWriteStream(`${imagesPath}/icon-512.png`);
-  // const icon = fs.createWriteStream(`${publicPath}/favicon-32.png`);
+  const additionalLocales = seoAndPwaNodes.length;
 
-  // try {
-  //   get(`${normalSize}`, (response) => {
-  //     response.pipe(iconNormal);
-  //   });
-  //   get(`${bigSize}`, (response) => {
-  //     response.pipe(iconBig);
-  //   });
-  //   get(`${favSize}`, (response) => {
-  //     response.pipe(icon);
-  //   });
-  // } catch (err) {
-  //   throw new Error(err.message);
-  // }
-
-  // const commonManifestData = {
-  //   theme_color: pwaThemeColorHex,
-  //   background_color: pwaBackgroundColorHex,
-  //   display: 'standalone',
-  //   icons: [
-  //     {
-  //       src: 'images/icon-192.png',
-  //       type: 'image/png',
-  //       sizes: '192x192',
-  //       purpose: 'any maskable',
-  //     },
-  //     {
-  //       src: 'images/icon-512.png',
-  //       type: 'image/png',
-  //       sizes: '512x512',
-  //       purpose: 'any maskable',
-  //     },
-  //   ],
-  //   cacheDigest: null,
-  // };
-
-  // const manifest = {
-  //   name,
-  //   short_name: shortName,
-  //   description,
-  //   lang: pwaLocale,
-  //   start_url: '/',
-  //   ...commonManifestData,
-  // };
-
-  // // Generate and save manifest to public folder
-
-  // fs.writeFileSync(
-  //   `${publicPath}/manifest.webmanifest`,
-  //   JSON.stringify(manifest, undefined, 2)
-  // );
-
-  // // Additional locales webmanifest files generation
-
-  // const additionalLocales = seoAndPwaNodes.length;
-
-  // if (additionalLocales > 1) {
-  //   seoAndPwaNodes
-  //     // Exclude default language already generated
-  //     .filter(({ locale }) => locale !== defaultLocale)
-  //     // eslint-disable-next-line no-shadow
-  //     .forEach(({ name, shortName, description, pwaLocale }) => {
-  //       // eslint-disable-next-line no-shadow
-  //       const manifest = {
-  //         name,
-  //         short_name: shortName,
-  //         description,
-  //         lang: pwaLocale,
-  //         display: 'standalone',
-  //         start_url: `/${pwaLocale}/`,
-  //         ...commonManifestData,
-  //       };
-  //       fs.writeFileSync(
-  //         `${publicPath}/manifest_${pwaLocale}.webmanifest`,
-  //         JSON.stringify(manifest, undefined, 2)
-  //       );
-  //     });
-  // }
+  if (additionalLocales > 1) {
+    seoAndPwaNodes
+      // Exclude default language already generated
+      .filter(({ locale }) => locale !== defaultLocale)
+      // eslint-disable-next-line no-shadow
+      .forEach(({ name, shortName, description, pwaLocale }) => {
+        // eslint-disable-next-line no-shadow
+        const manifest = {
+          name,
+          short_name: shortName,
+          description,
+          lang: pwaLocale,
+          display: 'standalone',
+          start_url: `/${pwaLocale}/`,
+          ...commonManifestData,
+        };
+        fs.writeFileSync(
+          `${publicPath}/manifest_${pwaLocale}.webmanifest`,
+          JSON.stringify(manifest, undefined, 2)
+        );
+      });
+  }
 };
